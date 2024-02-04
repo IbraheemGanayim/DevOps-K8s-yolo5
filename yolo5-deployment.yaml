@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yolo5-ibraheemg-deployment   # Name of the deployment
+  namespace: ibraheemg-ns            # Namespace where the deployment resides
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yolo5-ibraheemg            # Selector to match the labels of pods controlled by this deployment
+  template:
+    metadata:
+      labels:
+        app: yolo5-ibraheemg          # Labels for pods created by this template
+    spec:
+      containers:
+        - name: yolo5-container       # Name of the container
+          image: 933060838752.dkr.ecr.us-east-1.amazonaws.com/ibraheemg-yolo5:latest  # Docker image for the container
+          ports:
+            - containerPort: 8081     # Port the container listens on
+          resources:
+            requests:
+              memory: "50Mi"          # Requested memory for the container
+              cpu: "50m"              # Requested CPU for the container
+          env:
+            - name: BUCKET_NAME
+              value: your_bucket_name  # Environment variable for bucket name
+            - name: REGION
+              value: your_region       # Environment variable for region
+            - name: SQS_QUEUE_NAME
+              value: ibraheemg-nsQueue # Environment variable for SQS queue name
+            - name: DYNAMO_TBL
+              value: aws-dynamo-ibraheemg  # Environment variable for DynamoDB table
+            - name: POLYBOT_URL
+              value: 'http://ibraheemg-aws-alb-190769740.eu-west-3.elb.amazonaws.com'  # Environment variable for polybot URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yolo5-ibraheemg-service       # Name of the service
+  namespace: ibraheemg-ns             # Namespace where the service resides
+spec:
+  selector:
+    app: yolo5-ibraheemg            # Selector to match the labels of pods to expose
+  ports:
+    - protocol: TCP
+      port: 8081                    # Port exposed by the service
+      targetPort: 8081              # Port on pods to forward traffic to
+  type: ClusterIP                   # Type of the service
+    # ---
+    # apiVersion: autoscaling/v1
+    # kind: HorizontalPodAutoscaler
+    # metadata:
+    #   name: yolo5-hpa                   # Name of the horizontal pod autoscaler
+    #   namespace: ibraheemg-ns           # Namespace where the HPA resides
+    # spec:
+    #   scaleTargetRef:
+    #     apiVersion: apps/v1
+    #     kind: Deployment
+    #     name: yolo5-ibraheemg-deployment    # Deployment targeted by the HPA
+    #   minReplicas: 1                    # Minimum number of replicas
+    #   maxReplicas: 10                   # Maximum number of replicas
+    #   targetCPUUtilizationPercentage: 50 # Target CPU utilization percentage for scaling
