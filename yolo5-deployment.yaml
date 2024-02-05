@@ -22,17 +22,9 @@ spec:
             requests:
               memory: "50Mi"          # Requested memory for the container
               cpu: "50m"              # Requested CPU for the container
-          env:
-            - name: BUCKET_NAME
-              value: your_bucket_name  # Environment variable for bucket name
-            - name: REGION
-              value: your_region       # Environment variable for region
-            - name: SQS_QUEUE_NAME
-              value: ibraheemg-nsQueue # Environment variable for SQS queue name
-            - name: DYNAMO_TBL
-              value: aws-dynamo-ibraheemg  # Environment variable for DynamoDB table
-            - name: POLYBOT_URL
-              value: 'http://ibraheemg-aws-alb-190769740.eu-west-3.elb.amazonaws.com'  # Environment variable for polybot URL
+          envFrom:
+            - secretRef:
+                name: ibraheemg-yolo-secrets
 ---
 apiVersion: v1
 kind: Service

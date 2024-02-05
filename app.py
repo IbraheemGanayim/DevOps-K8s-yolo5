@@ -13,7 +13,7 @@ images_bucket = os.environ['BUCKET_NAME']
 queue_url = os.environ['SQS_QUEUE_URL']
 alb_url = os.environ['ALB_URL']
 
-sqs_client = boto3.client('sqs', region_name='eu-west-3')
+sqs_client = boto3.client('sqs', region_name='eu-east-1')
 s3_client = boto3.client('s3')
 
 with open("data/coco128.yaml", "r") as stream:
@@ -108,7 +108,7 @@ def consume():
             sqs_client.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt_handle)
 
 def store_in_dynamodb(summary_dic):
-    dynamodb_resource = boto3.resource('dynamodb', region_name='eu-west-3')
+    dynamodb_resource = boto3.resource('dynamodb', region_name='eu-east-1')
     table = dynamodb_resource.Table('ibraheemg-dynamodb-table')
     try:
         res = table.put_item(Item=summary_dic)
